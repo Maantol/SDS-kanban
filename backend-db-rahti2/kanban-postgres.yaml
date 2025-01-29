@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kanban-postgres
+  labels:
+    app: kanban-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kanban-postgres
+  template:
+    metadata:
+      labels:
+        app: kanban-postgres
+    spec:
+      containers:
+      - name: kanban-postgres
+        image: image-registry.apps.2.rahti.csc.fi/openshift/postgresql:15-el9
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRESQL_DATABASE
+          value: "kanban"
+        - name: POSTGRESQL_USER
+          value: "kanban"
+        - name: POSTGRESQL_PASSWORD
+          value: "kanban"
+        - name: POSTGRESQL_ADMIN_PASSWORD
+          value: "SDS"
+        volumeMounts:
+        - name: kanban-data
+          mountPath: /var/lib/pgsql/data
+      volumes:
+      - name: kanban-data
+        persistentVolumeClaim:
+          claimName: kanban-pvc 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kanban-postgres
+  labels:
+    app: kanban-postgres
+spec:
+  ports:
+  - port: 5432
+    targetPort: 5432
+  selector:
+    app: kanban-postgres
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kanban-pvc 
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi

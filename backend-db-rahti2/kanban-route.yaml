@@ -1,0 +1,11 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: kanban-backend-route
+spec:
+  host: kanban-backend-route-sdx-assignment-tolonenm.2.rahtiapp.fi
+  to:
+    kind: Service
+    name: kanban-service
+  port:
+    targetPort: 8080
